@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pong Game</title>
+  <style>
+    canvas {
+      display: block;
+      margin: auto;
+      background-color: black;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="pong" width="800" height="400"></canvas>
+  <script>
+    const canvas = document.getElementById('pong');
+    const ctx = canvas.getContext('2d');
+
+    const paddleWidth = 10;
+    const paddleHeight = 100;
+
+    let player = {
+      x: 20,
+      y: canvas.height / 2 - paddleHeight / 2,
+      width: paddleWidth,
+      height: paddleHeight,
+      dy: 5
+    };
+
+    let computer = {
+      x: canvas.width - 30,
+      y: canvas.height / 2 - paddleHeight / 2,
+      width: paddleWidth,
+      height: paddleHeight,
+      dy: 5
+    };
+
+    let ball = {
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      radius: 8,
+      dx: 4,
+      dy: 4
+    };
+
+    function drawPaddle(x, y, width, height, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, width, height);
+    }
+
+    function drawBall(x, y, radius, color) {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2, false);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function movePaddle(paddle) {
+      paddle.y += paddle.dy;
+      if (paddle.y < 0) paddle.y = 0;
+      if (paddle.y + paddle.height > canvas.height) paddle.y = canvas.height - paddle.height;
+    }
+
+    function moveBall() {
+      ball.x += ball.dx;
+      ball.y += ball.dy;
+
+      if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) {
+        ball.dy *= -1;
+      }
+
+      if (ball.x - ball.radius < 0) {
+        ball.x = canvas.width / 2;
+        ball.y = canvas.height / 2;
+        ball.dx *= -1;
+      }
+
+      if (ball.x + ball.radius > canvas.width) {
+        ball.x = canvas.width / 2;
+        ball.y = canvas.height / 2;
+        ball.dx *= -1;
+      }
+
+      if (ball.x - ball.radius < player.x + player.width &&
+          ball.y + ball.radius > player.y &&
+          ball.y - ball.radius < player.y + player.height) {
+        ball.dx *= -1;
+      }
+
+      if (ball.x + ball.radius > computer.x &&
+          ball.y + ball.radius > computer.y &&
+          ball.y - ball.radius < computer.y + computer.height) {
+        ball.dx *= -1;
+      }
+    }
+
+    function computerAI() {
+      if (computer.y + computer.height / 2 < ball.y) {
+        computer.dy = 5;
+      } else {
+        computer.dy = -5;
+      }
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
